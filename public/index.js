@@ -260,7 +260,7 @@ function applyDefaultLayout(objects) {
         if (!obj || !obj.name) continue;
         if (obj.name === "penguin") {
             obj.position = {x: -1.5, y: 0, z: 0};
-            obj.rotation = {x: 0, y: 0, z: 0};
+            obj.rotation = {x: 0, y: Math.PI, z: 0};
             obj.scale = {x: 3, y: 3, z: 3};
         } else if (obj.name === "cube") {
             obj.position = {x: 1.5, y: 0, z: 0};
@@ -476,7 +476,7 @@ function buildDefaultScene() {
             name: "penguin",
             mesh: baseMesh,
             position: {x: -1.5, y: 0, z: 0},
-            rotation: {x: 0, y: 0, z: 0},
+            rotation: {x: 0, y: Math.PI, z: 0},
             scale: {x: 3, y: 3, z: 3},
             color: {r: 0, g: 255, b: 0},
         });
