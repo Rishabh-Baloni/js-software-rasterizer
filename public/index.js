@@ -499,8 +499,8 @@ function buildDefaultScene() {
 (async () => {
     try {
         const [pengRes, cubeRes] = await Promise.all([
-            fetch("/public/assets/penguin.obj"),
-            fetch("/public/assets/cube.obj"),
+            fetch("./assets/penguin.obj"),
+            fetch("./assets/cube.obj"),
         ]);
 
         if (!pengRes.ok) throw new Error(`Failed to load penguin asset: ${pengRes.status}`);
