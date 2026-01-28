@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>JS-3D-Engine</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <canvas id="game"></canvas>
+
+      <header class="hud topbar">
+        <div class="group">
+          <label>Load .obj:
+            <input id="objFile" type="file" accept=".obj,text/plain" />
+          </label>
+          <button id="resetView" class="btn-primary">Reset View</button>
+          <button id="snapshotBtn">Snapshot PNG</button>
+          <button id="exportObjBtn">Export OBJ</button>
+        </div>
+
+        <div class="group">
+          <label><input id="drawWireframe" type="checkbox" /> Wireframe</label>
+          <label><input id="drawNormals" type="checkbox" /> Normals</label>
+          <label><input id="drawBounds" type="checkbox" /> Bounding Box</label>
+          <label><input id="enableSpecular" type="checkbox" checked /> Specular</label>
+          <span id="stats"></span>
+        </div>
+      </header>
+
+      <aside class="hud sidebar-left">
+        <div class="panel">
+          <h3>Scene List</h3>
+          <div id="sceneList" class="scene-list"></div>
+          <div class="panel-actions">
+            <button id="deleteSelectedBtn" class="btn-danger">Delete Selected</button>
+            <button id="clearAllBtn">Clear All</button>
+          </div>
+        </div>
+      </aside>
+
+      <aside class="hud sidebar-right">
+        <div class="panel">
+          <h3>Inspector</h3>
+
+          <div class="row">
+            <label>Pos X</label>
+            <input id="posX" type="range" min="-10" max="10" step="0.01" />
+            <input id="posXNum" type="number" step="0.01" />
+          </div>
+          <div class="row">
+            <label>Pos Y</label>
+            <input id="posY" type="range" min="-10" max="10" step="0.01" />
+            <input id="posYNum" type="number" step="0.01" />
+          </div>
+          <div class="row">
+            <label>Pos Z</label>
+            <input id="posZ" type="range" min="-10" max="10" step="0.01" />
+            <input id="posZNum" type="number" step="0.01" />
+          </div>
+
+          <div class="row">
+            <label>Rot X</label>
+            <input id="rotX" type="range" min="-3.1416" max="3.1416" step="0.001" />
+            <input id="rotXNum" type="number" step="0.001" />
+          </div>
+          <div class="row">
+            <label>Rot Y</label>
+            <input id="rotY" type="range" min="-3.1416" max="3.1416" step="0.001" />
+            <input id="rotYNum" type="number" step="0.001" />
+          </div>
+          <div class="row">
+            <label>Rot Z</label>
+            <input id="rotZ" type="range" min="-3.1416" max="3.1416" step="0.001" />
+            <input id="rotZNum" type="number" step="0.001" />
+          </div>
+
+          <div class="row">
+            <label>Scale</label>
+            <input id="scaleU" type="range" min="0.01" max="20" step="0.01" />
+            <input id="scaleUNum" type="number" step="0.01" />
+          </div>
+        </div>
+      </aside>
+    </div>
+
+<script src="index.js"></script>
+  </body>
+</html>
