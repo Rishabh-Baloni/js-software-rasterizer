@@ -2,6 +2,7 @@ const BACKGROUND = "#101010";
 const FOREGROUND = "#50FF50";
 const SELECTED_WIREFRAME = "#ffd400";
 
+const game = document.getElementById("game");
 const ctx = game.getContext("2d");
 
 function resizeCanvasToDisplaySize() {
@@ -498,8 +499,8 @@ function buildDefaultScene() {
 (async () => {
     try {
         const [pengRes, cubeRes] = await Promise.all([
-            fetch("/assets/penguin.obj"),
-            fetch("/assets/cube.obj"),
+            fetch("/public/assets/penguin.obj"),
+            fetch("/public/assets/cube.obj"),
         ]);
 
         if (!pengRes.ok) throw new Error(`Failed to load penguin asset: ${pengRes.status}`);
