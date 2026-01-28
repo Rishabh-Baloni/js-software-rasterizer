@@ -70,10 +70,10 @@ public/
     cube.obj
 ```
 
-## Credits
+## Author
 
-- Penguin model: https://github.com/Max-Kawula/penger-obj
+Built by [Rishabh Baloni](https://portfolio-three-azure-83.vercel.app/)
 
 ## License
 
-MIT
+This project is licensed under the [MIT LICENSE](LICENSE)
