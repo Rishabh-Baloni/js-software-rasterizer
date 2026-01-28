@@ -1,8 +1,8 @@
-const BACKGROUND = "#101010"
-const FOREGROUND = "#50FF50"
+const BACKGROUND = "#101010";
+const FOREGROUND = "#50FF50";
 const SELECTED_WIREFRAME = "#ffd400";
 
-const ctx = game.getContext("2d")
+const ctx = game.getContext("2d");
 
 function resizeCanvasToDisplaySize() {
     // Match the CSS pixel size * devicePixelRatio for crisp rendering.
@@ -26,7 +26,7 @@ function clear() {
 
 function line(p1, p2) {
     ctx.lineWidth = 3;
-    ctx.strokeStyle = FOREGROUND
+    ctx.strokeStyle = FOREGROUND;
     ctx.beginPath();
     ctx.moveTo(p1.x, p1.y);
     ctx.lineTo(p2.x, p2.y);
@@ -48,9 +48,9 @@ function project({x, y, z}) {
     // Aspect correction: without this, wide canvases make models look "fat".
     const aspect = game.width / game.height; // width/height
     return {
-        x: (x/z) / aspect,
-        y: y/z,
-    }
+        x: (x / z) / aspect,
+        y: y / z,
+    };
 }
 
 const FPS = 60;
@@ -253,43 +253,20 @@ function applyView(p) {
     return q;
 }
 
-function makePlaneMesh(size, y) {
-    // 2 triangles, centered at origin
-    const s = size / 2;
-    const vs = [
-        {x: -s, y, z: -s},
-        {x:  s, y, z: -s},
-        {x:  s, y, z:  s},
-        {x: -s, y, z:  s},
-    ];
-    const fs = [
-        [0, 1, 2],
-        [0, 2, 3],
-    ];
-    // bounds in local space
-    return {
-        vs,
-        fs,
-        bounds: {
-            min: {x: -s, y, z: -s},
-            max: {x:  s, y, z:  s},
-        },
-    };
-}
-
-function spawnDefaultScene(baseMesh) {
-    // Default scene: ONLY ONE penguin at (0,0,0). No floor, no extras.
-    const scene = [];
-    if (!baseMesh) return scene;
-    scene.push({
-        name: "penguin",
-        mesh: baseMesh,
-        position: {x: 0, y: 0, z: 0},
-        rotation: {x: 0, y: 0, z: 0},
-        scale: {x: 3.0, y: 3.0, z: 3.0},
-        color: {r: 0, g: 255, b: 0},
-    });
-    return scene;
+// Default layout helper: penguin on the left, cube on the right.
+function applyDefaultLayout(objects) {
+    for (const obj of objects) {
+        if (!obj || !obj.name) continue;
+        if (obj.name === "penguin") {
+            obj.position = {x: -1.5, y: 0, z: 0};
+            obj.rotation = {x: 0, y: 0, z: 0};
+            obj.scale = {x: 3, y: 3, z: 3};
+        } else if (obj.name === "cube") {
+            obj.position = {x: 1.5, y: 0, z: 0};
+            obj.rotation = {x: 0, y: 0, z: 0};
+            obj.scale = {x: 1.8, y: 1.8, z: 1.8};
+        }
+    }
 }
 
 // Input (WASD + mouse look)
@@ -367,6 +344,8 @@ function resetView() {
     camera.position = {x: 0, y: 0.5, z: -6};
     camera.yaw = 0;
     camera.pitch = 0;
+    applyDefaultLayout(sceneObjects);
+    syncInspectorFromSelected();
 }
 
 if (resetViewBtn) resetViewBtn.addEventListener("click", resetView);
@@ -401,7 +380,8 @@ if (exportObjBtn) {
     });
 }
 
-let baseMesh = null;
+let baseMesh = null;       // default penguin mesh
+let baseCubeMesh = null;   // default cube mesh
 let sceneObjects = [];
 let selectedObjectIndex = 0;
 
@@ -487,25 +467,60 @@ function bindRangeNumber(rangeEl, numEl, onValue) {
     }
 }
 
-function setMesh(newMesh) {
-    baseMesh = normalizeMesh(newMesh);
-    sceneObjects = spawnDefaultScene(baseMesh);
-    if (statsEl && baseMesh) statsEl.textContent = `v=${baseMesh.vs.length}  f(tris)=${baseMesh.fs.length}`;
-    selectedObjectIndex = 0;
-    updateSceneListUI();
-    syncInspectorFromSelected();
+// Build the default scene: left penguin + right cube, if their meshes are loaded.
+function buildDefaultScene() {
+    const scene = [];
+    if (baseMesh) {
+        scene.push({
+            name: "penguin",
+            mesh: baseMesh,
+            position: {x: -1.5, y: 0, z: 0},
+            rotation: {x: 0, y: 0, z: 0},
+            scale: {x: 3, y: 3, z: 3},
+            color: {r: 0, g: 255, b: 0},
+        });
+    }
+    if (baseCubeMesh) {
+        scene.push({
+            name: "cube",
+            mesh: baseCubeMesh,
+            position: {x: 1.5, y: 0, z: 0},
+            rotation: {x: 0, y: 0, z: 0},
+            scale: {x: 1.8, y: 1.8, z: 1.8},
+            color: {r: 80, g: 200, b: 255},
+        });
+    }
+    applyDefaultLayout(scene);
+    return scene;
 }
 
-// Default mesh: load a bundled OBJ asset (Vercel/GitHub Pages friendly).
+// Default meshes: load bundled OBJ assets (Vercel/GitHub Pages friendly).
 (async () => {
     try {
-        const res = await fetch("./assets/penguin.obj");
-        if (!res.ok) throw new Error(`Failed to load default asset: ${res.status}`);
-        const text = await res.text();
-        const parsed = parseOBJ(text);
-        setMesh(parsed);
+        const [pengRes, cubeRes] = await Promise.all([
+            fetch("./assets/penguin.obj"),
+            fetch("./assets/cube.obj"),
+        ]);
+
+        if (!pengRes.ok) throw new Error(`Failed to load penguin asset: ${pengRes.status}`);
+        const pengText = await pengRes.text();
+        baseMesh = normalizeMesh(parseOBJ(pengText));
+
+        if (cubeRes.ok) {
+            const cubeText = await cubeRes.text();
+            baseCubeMesh = normalizeMesh(parseOBJ(cubeText));
+        }
+
+        sceneObjects = buildDefaultScene();
+        selectedObjectIndex = 0;
+        updateSceneListUI();
+        syncInspectorFromSelected();
+
+        if (statsEl && baseMesh) {
+            statsEl.textContent = `v=${baseMesh.vs.length}  f(tris)=${baseMesh.fs.length}`;
+        }
     } catch (e) {
-        // If the asset is missing, the app still works (user can upload an OBJ).
+        // If the assets are missing, the app still works (user can upload an OBJ).
         if (statsEl) statsEl.textContent = "Upload an .obj to begin";
         // eslint-disable-next-line no-console
         console.warn(e);
@@ -546,7 +561,7 @@ if (deleteSelectedBtn) {
         sceneObjects.splice(selectedObjectIndex, 1);
 
         if (sceneObjects.length === 0) {
-            sceneObjects = baseMesh ? spawnDefaultScene(baseMesh) : [];
+            sceneObjects = buildDefaultScene();
             selectedObjectIndex = 0;
         } else {
             selectedObjectIndex = clamp(selectedObjectIndex, 0, sceneObjects.length - 1);
@@ -559,7 +574,7 @@ if (deleteSelectedBtn) {
 
 if (clearAllBtn) {
     clearAllBtn.addEventListener("click", () => {
-        sceneObjects = baseMesh ? spawnDefaultScene(baseMesh) : [];
+        sceneObjects = buildDefaultScene();
         selectedObjectIndex = 0;
         updateSceneListUI();
         syncInspectorFromSelected();
