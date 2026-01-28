@@ -44,8 +44,11 @@ function screen(p) {
 function project({x, y, z}) {
     // Near-plane clip: prevents x/z explosions when camera gets too close.
     if (z <= NEAR_PLANE) return null;
+
+    // Aspect correction: without this, wide canvases make models look "fat".
+    const aspect = game.width / game.height; // width/height
     return {
-        x: x/z,
+        x: (x/z) / aspect,
         y: y/z,
     }
 }
